@@ -24,12 +24,16 @@
             <div class="row my-5">
                 <div class="col-lg-4" v-for="item in articles">
                     <div class="card">
-                        <img v-bind:src="item.thumbnail" class="card-img-top" alt="...">
+                        <img v-bind:src="item.thumbnail" class="card-img-top" v-bind:alt="item.title" style="height: 200px;">
                         <div class="card-body">
                             <h5 class="card-title" v-html="item.title"></h5>
                             <p class="card-text" v-html="item.content"></p>
                             <a href="#" class="btn btn-primary">Go somewhere</a>
                         </div>
+
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <b>X</b>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -103,6 +107,18 @@
                             this.articles = response.data;
                             this.loading = false;
                             console.log(this.articles)
+                        })
+                        .catch((err) => {
+                            this.loading = false;
+                            console.log(err);
+                        });
+                },
+                deleteArticle: function(id){
+                    this.loading = true;
+                    this.$http.delete(`http://localhost:8000/api/article/${id}`)
+                        .then((response) => {
+                            this.loading = false;
+                            this.getArticles();
                         })
                         .catch((err) => {
                             this.loading = false;
