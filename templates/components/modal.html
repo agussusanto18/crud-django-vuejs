@@ -1,0 +1,34 @@
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form action="" method="post" v-on:submit.prevent="createArticle()">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formModalLabel">Add New Article</h5>
+                <button type="button" id="btn-close-modal-1" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                        <label for="title">Title</label>
+                        <input type="text" v-model="newArticle.title" name="article-title" id="title" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="keyword">Keyword</label>
+                        <input type="text" v-model="newArticle.keyword" name="article-keyword" id="keyword" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="keyword">Content</label>
+                        <textarea name="content" v-model="newArticle.content" id="article-content" rows="5" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="thumbnail">Thumbnail</label>
+                        <input type="file" v-on:change="handleFilesUpload()" ref="thumbnail" name="thumbnail" id="thumbnail" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create Article</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

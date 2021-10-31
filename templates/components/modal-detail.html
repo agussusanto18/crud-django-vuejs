@@ -1,0 +1,27 @@
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="" method="post" v-on:submit.prevent="createArticle()">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel" v-html="detailArticle.title"></h5>
+                <button type="button" id="btn-close-modal-2" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <img v-bind:src="detailArticle.thumbnail" v-bind:alt="detailArticle.title" class="w-100">
+                
+                <div class="my-5">
+                    <span v-html="detailArticle.content"></span>
+                    <br>
+                    <br>
+                    <b>Keyword:</b> <span v-html="detailArticle.keyword"></span>
+                </div>
+                
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
