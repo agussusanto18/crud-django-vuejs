@@ -22,7 +22,7 @@
                         <div class="card-body">
                             <h5 class="card-title" v-html="item.title"></h5>
                             <button v-on:click="getArticle(item.id)" class="btn btn-primary mt-3">Show Article</button>
-                            <button v-on:click="getArticle(item.id)" class="btn btn-secondary mt-3">Edit</button>
+                            <button v-on:click="getArticle(item.id, 'update')" class="btn btn-secondary mt-3">Edit</button>
                         </div>
 
                         <span v-on:click="deleteArticle(item.id)" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="cursor: pointer;">
@@ -57,14 +57,16 @@
                 articles: [],
                 hai: "hello",
                 loading: false,
-                detailArticle: {},
-                message: null,
-                newArticle: {
+                detailArticle: {
+                    id: null,
                     title: null,
                     content: null,
                     keyword: null,
                     thumbnail: null
-                }
+                },
+                message: null,
+                formModalTitle: 'Create New Article',
+                saveButtonName: 'Create Article'
             },
             mounted: function() {
                 this.getArticles();
@@ -82,14 +84,22 @@
                             console.log(err);
                         });
                 },
-                getArticle: function(id) {
+                getArticle: function(id, action='detail') {
                     this.loading = true;
                     this.$http.get(`http://localhost:8000/api/article/${id}/`)
                         .then((response) => {
                             this.detailArticle = response.data;
                             this.loading = false;
 
-                            jQuery('#detailModal').modal('show');
+                            console.log(this.detailArticle)
+
+                            if(action == 'detail') {
+                                jQuery('#detailModal').modal('show');
+                            } else if (action == 'update') {
+                                jQuery('#formModal').modal('show');
+                                this.formModalTitle = 'Update Article';
+                                this.saveButtonName = 'Save Changes';
+                            }
                         })
                         .catch((err) => {
                             this.loading = false;
@@ -116,8 +126,8 @@
 
                     let formData = new FormData();
 
-                    for(let key in this.newArticle) {
-                        formData.append(key, this.newArticle[key])
+                    for(let key in this.detailArticle) {
+                        formData.append(key, this.detailArticle[key])
                     }
 
                     this.$http.post('http://localhost:8000/api/article/', formData, {
@@ -136,14 +146,49 @@
                             console.log(err.body);
                         });
                 },
+                updateArticle: function(id) {
+                    this.loading = true;
+
+                    let formData = new FormData();
+
+                    for(let key in this.detailArticle) {
+                        formData.append(key, this.detailArticle[key])
+                    }
+
+                    this.$http.put(`http://localhost:8000/api/article/${id}/`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }).then((response) => {
+                            this.loading = false;
+                            this.getArticles();
+                            
+                            jQuery('#formModal').modal('toggle');
+                            this.clearFormInput();
+                        })
+                        .catch((err) => {
+                            this.loading = false;
+                            console.log(err.body);
+                        });
+                },
+                saveArticle: function() {
+                    let articleId = this.detailArticle.id;
+                    
+                    if (articleId !== null)
+                        this.updateArticle(articleId);
+                    else
+                        this.createArticle();
+                },
                 handleFilesUpload: function() {
                     let uploadedFile = this.$refs.thumbnail.files[0];
-                    this.newArticle.thumbnail = uploadedFile;
+                    this.detailArticle.thumbnail = uploadedFile;
                 },
                 clearFormInput: function() {
-                    for(let key in this.newArticle) {
-                        this.newArticle[key] = null;
+                    for(let key in this.detailArticle) {
+                        this.detailArticle[key] = null;
                     }
+                    this.formModalTitle = 'Create New Article';
+                    this.saveButtonName = 'Create Article';
                 }
             }
         });
