@@ -17,7 +17,7 @@
                         <img src="https://getbootstrap.com/docs/5.1/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
                         DJVue Crud
                     </a>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add New Article</button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal">Add New Article</button>
                 </div>
             </nav>
 
@@ -27,11 +27,10 @@
                         <img v-bind:src="item.thumbnail" class="card-img-top" v-bind:alt="item.title" style="height: 200px;">
                         <div class="card-body">
                             <h5 class="card-title" v-html="item.title"></h5>
-                            <p class="card-text" v-html="item.content"></p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <a href="#" class="btn btn-primary mt-3">Show Article</a>
                         </div>
 
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        <span v-on:click="deleteArticle(item.id)" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             <b>X</b>
                         </span>
                     </div>
@@ -40,37 +39,37 @@
         </div>
 
         <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
+                <form action="" method="post" v-on:submit.prevent="createArticle()">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add New Article</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="formModalLabel">Add New Article</h5>
+                    <button type="button" id="btn-close-modal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method="post">
-                        <div class="mb-3">
+                    <div class="mb-3">
                             <label for="title">Title</label>
-                            <input type="text" name="article-title" id="title" class="form-control">
+                            <input type="text" v-model="newArticle.title" name="article-title" id="title" class="form-control">
                         </div>
                         <div class="mb-3">
                             <label for="keyword">Keyword</label>
-                            <input type="text" name="article-keyword" id="keyword" class="form-control">
+                            <input type="text" v-model="newArticle.keyword" name="article-keyword" id="keyword" class="form-control">
                         </div>
                         <div class="mb-3">
                             <label for="keyword">Content</label>
-                            <textarea name="content" id="article-content" rows="5" class="form-control"></textarea>
+                            <textarea name="content" v-model="newArticle.content" id="article-content" rows="5" class="form-control"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="thumbnail">Thumbnail</label>
-                            <input type="file" name="thumbnail" id="thumbnail" class="form-control">
+                            <input type="file" v-on:change="handleFilesUpload()" ref="thumbnail" name="thumbnail" id="thumbnail" class="form-control">
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Create Article</button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create Article</button>
+                    </div>
+                </form>
             </div>
             </div>
         </div>
@@ -79,15 +78,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.3"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 
     <script>
+        Vue.http.headers.common['X-CSRFToken'] = "{{ csrf_token }}";
+
         new Vue({
             el: "#app",
             data: {
                 articles: [],
                 hai: "hello",
                 loading: false,
-                DetailArticle: {},
+                detailArticle: {},
                 message: null,
                 newArticle: {
                     title: null,
@@ -106,7 +109,6 @@
                         .then((response) => {
                             this.articles = response.data;
                             this.loading = false;
-                            console.log(this.articles)
                         })
                         .catch((err) => {
                             this.loading = false;
@@ -114,16 +116,46 @@
                         });
                 },
                 deleteArticle: function(id){
+                    if (confirm("Are you sure to delete this article?")){
+                        this.loading = true;
+                        
+                        this.$http.delete(`http://localhost:8000/api/article/${id}/`)
+                            .then((response) => {
+                                this.loading = false;
+                                this.getArticles();
+                            })
+                            .catch((err) => {
+                                this.loading = false;
+                                console.log(err);
+                            });
+                    }
+                },
+                createArticle: function() {
                     this.loading = true;
-                    this.$http.delete(`http://localhost:8000/api/article/${id}`)
-                        .then((response) => {
+
+                    let formData = new FormData();
+
+                    for(let key in this.newArticle) {
+                        formData.append(key, this.newArticle[key])
+                    }
+
+                    this.$http.post('http://localhost:8000/api/article/', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }).then((response) => {
                             this.loading = false;
                             this.getArticles();
+                            document.getElementById('btn-close-modal').click();
                         })
                         .catch((err) => {
                             this.loading = false;
-                            console.log(err);
+                            console.log(err.body);
                         });
+                },
+                handleFilesUpload: function() {
+                    let uploadedFile = this.$refs.thumbnail.files[0];
+                    this.newArticle.thumbnail = uploadedFile;
                 }
             }
         });
