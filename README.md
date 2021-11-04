@@ -2,10 +2,10 @@
 
 ## Screenshot ##
 
-<img src="sc1.png" style="width: 48%; float: left; margin: 1%;">
-<img src="sc2.png" style="width: 48%; float: left; margin: 1%;">
-<img src="sc3.png" style="width: 48%; float: left; margin: 1%;">
-<img src="sc4.png" style="width: 48%; margin: 1%;">
+<img src="sc1.png" style="width: 47%; float: left; margin: 1%;">
+<img src="sc2.png" style="width: 47%; float: left; margin: 1%;">
+<img src="sc3.png" style="width: 47%; float: left; margin: 1%;">
+<img src="sc4.png" style="width: 47%; margin: 1%;">
 
 ## Features ##
 
