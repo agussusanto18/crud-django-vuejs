@@ -10,3 +10,7 @@ class Article(models.Model):
     
     def __str__(self):
         return self.title
+    
+    @staticmethod
+    def field_file_to_deleted():
+        return "thumbnail"

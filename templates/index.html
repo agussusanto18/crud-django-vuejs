@@ -15,6 +15,12 @@
             <!-- Navbar -->
             {% include 'components/navbar.html' %}
 
+            <div v-if="!articles.length">
+                <div class="alert alert-warning text-center mt-5" role="alert">
+                    Tidak ada artikel ditemukan
+                </div>
+            </div>
+
             <div class="row my-5">
                 <div class="col-lg-4 mb-4" v-for="item in articles">
                     <div class="card">
@@ -152,6 +158,10 @@
                     let formData = new FormData();
 
                     for(let key in this.detailArticle) {
+
+                        if (key == 'thumbnail' && !(this.detailArticle[key] instanceof File))
+                            continue
+
                         formData.append(key, this.detailArticle[key])
                     }
 
